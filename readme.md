@@ -53,8 +53,8 @@ It fetches data from CRM and Inventory systems, merges it, and sends it to an An
 
 1. **Clone repository**
 ```bash
-git clone <repo-url>
-cd <repo-root>
+git clone git@github.com:Emmanuel-Mwiti/Integration-test.git
+cd Integration-test
 docker-compose up --build
 docker ps
 docker logs producer-app -f       # Check producers sending messages
