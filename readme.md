@@ -70,6 +70,16 @@ docker logs analytics-mock -f    # Verify analytics received merged payloads
 | Consumer-App  | REDIS_HOST                     | redis      |
 
 ## Test Result
+To test, You can directly:
+```bash
+docker logs analytics-mock -f  
+```
+Then see logs like:
+```
+Analytics received: {customer={id=1, name=Emmanuel Mwiti, email=emmanuel@example.com, updatedAt=null}, inventory={id=1, name=Laptop, stock=15, updatedAt=null}}  
+Analytics received: {customer={id=2, name=Victor Mugo, email=victor@example.com, updatedAt=null}, inventory={id=2, name=Mouse, stock=50, updatedAt=null}}        
+
+```
 
 ![Test Result](test_results.png)
 This is a log in the mock analytics, that is consuming the fianl refined data
