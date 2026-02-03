@@ -24,37 +24,30 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-
-
-  # Redis for idempotency
   redis:
     image: redis:7
     container_name: redis
     ports:
       - "6379:6379"
 
-  # CRM Mock service
   crm-mock:
     build: ./crm-app
     container_name: crm-mock
     ports:
       - "8081:8080"
 
-  # Inventory Mock service
   inventory-mock:
     build: ./inventory-app
     container_name: inventory-mock
     ports:
       - "8082:8080"
 
-  # Analytics Mock service
   analytics-mock:
     build: ./analytics-app
     container_name: analytics-mock
     ports:
       - "8083:8080"
 
-  # Spring Boot producer application
   producer-app:
     build: ./producer-app
     container_name: producer-app
@@ -62,19 +55,10 @@ services:
       - kafka
       - crm-mock
       - inventory-mock
-    environment:
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-    ports:
-      - "8084:8080"
-
-  # Python consumer application
-  consumer-app:
-    build: ./consumer-app
-    container_name: consumer-app
-    depends_on:
-      - kafka
       - redis
       - analytics-mock
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - REDIS_HOST=redis
+    ports:
+      - "8084:8080"
