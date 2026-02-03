@@ -1,0 +1,80 @@
+version: "3.8"
+
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+
+
+  # Redis for idempotency
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # CRM Mock service
+  crm-mock:
+    build: ./crm-app
+    container_name: crm-mock
+    ports:
+      - "8081:8080"
+
+  # Inventory Mock service
+  inventory-mock:
+    build: ./inventory-app
+    container_name: inventory-mock
+    ports:
+      - "8082:8080"
+
+  # Analytics Mock service
+  analytics-mock:
+    build: ./analytics-app
+    container_name: analytics-mock
+    ports:
+      - "8083:8080"
+
+  # Spring Boot producer application
+  producer-app:
+    build: ./producer-app
+    container_name: producer-app
+    depends_on:
+      - kafka
+      - crm-mock
+      - inventory-mock
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    ports:
+      - "8084:8080"
+
+  # Python consumer application
+  consumer-app:
+    build: ./consumer-app
+    container_name: consumer-app
+    depends_on:
+      - kafka
+      - redis
+      - analytics-mock
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - REDIS_HOST=redis
